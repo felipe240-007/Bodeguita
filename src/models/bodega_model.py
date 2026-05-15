@@ -6,11 +6,11 @@ class BodegaModel:
     def __init__(self):
         self.db = DatabaseConnection()
 
-    # -------------------------
-    # OBTENER PRODUCTOS
-    # -------------------------
+    # --------------------------------
+    # OBTENER BODEGAS
+    # --------------------------------
 
-    def obtener_productos(self):
+    def obtener_bodegas(self):
 
         conn = self.db.connect()
 
@@ -19,29 +19,28 @@ class BodegaModel:
             cursor = conn.cursor()
 
             query = """
-            SELECT 
-                id_producto,
-                Titulo,
-                tipo,
-                stock_total
-            FROM producto
+            SELECT
+                id_bodega,
+                nombre_bodega,
+                direccion
+            FROM bodega
             """
 
             cursor.execute(query)
 
-            productos = cursor.fetchall()
+            bodegas = cursor.fetchall()
 
             conn.close()
 
-            return productos
+            return bodegas
 
         return []
 
-    # -------------------------
-    # AGREGAR PRODUCTO
-    # -------------------------
+    # --------------------------------
+    # AGREGAR BODEGA
+    # --------------------------------
 
-    def agregar_producto(self, titulo, tipo, descripcion, stock):
+    def agregar_bodega(self, nombre, direccion):
 
         conn = self.db.connect()
 
@@ -50,24 +49,17 @@ class BodegaModel:
             cursor = conn.cursor()
 
             query = """
-            INSERT INTO producto
+            INSERT INTO bodega
             (
-                Titulo,
-                tipo,
-                Descripcion,
-                stock_total,
-                id_autor,
-                id_editorial,
-                id_bodega
+                nombre_bodega,
+                direccion
             )
-            VALUES (%s, %s, %s, %s, 1, 1, 1)
+            VALUES (%s, %s)
             """
 
             valores = (
-                titulo,
-                tipo,
-                descripcion,
-                stock
+                nombre,
+                direccion
             )
 
             cursor.execute(query, valores)
@@ -76,11 +68,11 @@ class BodegaModel:
 
             conn.close()
 
-    # -------------------------
-    # ELIMINAR PRODUCTO
-    # -------------------------
+    # --------------------------------
+    # ELIMINAR BODEGA
+    # --------------------------------
 
-    def eliminar_producto(self, id_producto):
+    def eliminar_bodega(self, id_bodega):
 
         conn = self.db.connect()
 
@@ -89,21 +81,27 @@ class BodegaModel:
             cursor = conn.cursor()
 
             query = """
-            DELETE FROM producto
-            WHERE id_producto = %s
+            DELETE FROM bodega
+            WHERE id_bodega = %s
             """
 
-            cursor.execute(query, (id_producto,))
+            cursor.execute(query, (id_bodega,))
 
             conn.commit()
 
             conn.close()
 
-    # -------------------------
-    # ACTUALIZAR STOCK
-    # -------------------------
+    # --------------------------------
+    # TRANSFERIR PRODUCTO
+    # --------------------------------
 
-    def actualizar_stock(self, id_producto, cantidad):
+    def transferir_producto(
+        self,
+        id_producto,
+        cantidad,
+        id_bodega_origen,
+        id_bodega_destino
+    ):
 
         conn = self.db.connect()
 
@@ -111,17 +109,7 @@ class BodegaModel:
 
             cursor = conn.cursor()
 
-            # Actualizar stock
             query = """
-            UPDATE producto
-            SET stock_total = stock_total + %s
-            WHERE id_producto = %s
-            """
-
-            cursor.execute(query, (cantidad, id_producto))
-
-            # Registrar movimiento
-            movimiento = """
             INSERT INTO movimiento
             (
                 fecha,
@@ -131,17 +119,60 @@ class BodegaModel:
                 id_bodega_origen,
                 id_bodega_destino
             )
-            VALUES (%s, %s, 1, %s, 1, 1)
+            VALUES (%s, %s, 1, %s, %s, %s)
             """
 
-            valores_movimiento = (
+            valores = (
                 datetime.now(),
                 cantidad,
-                id_producto
+                id_producto,
+                id_bodega_origen,
+                id_bodega_destino
             )
 
-            cursor.execute(movimiento, valores_movimiento)
+            cursor.execute(query, valores)
 
             conn.commit()
 
             conn.close()
+    # --------------------------------
+    # OBTENER MOVIMIENTOS
+    # --------------------------------
+
+    def obtener_movimientos(self):
+
+        conn = self.db.connect()
+
+        if conn:
+
+            cursor = conn.cursor()
+
+            query = """
+            SELECT
+                m.id_movimiento,
+                p.Titulo,
+                m.cantidad,
+                bo.nombre_bodega AS origen,
+                bd.nombre_bodega AS destino,
+                m.fecha
+            FROM movimiento m
+
+            LEFT JOIN producto p
+                ON m.id_producto = p.id_producto
+
+            LEFT JOIN bodega bo
+                ON m.id_bodega_origen = bo.id_bodega
+
+            LEFT JOIN bodega bd
+                ON m.id_bodega_destino = bd.id_bodega
+            """
+
+            cursor.execute(query)
+
+            movimientos = cursor.fetchall()
+
+            conn.close()
+
+            return movimientos
+
+        return []

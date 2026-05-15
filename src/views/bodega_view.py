@@ -7,184 +7,286 @@ class BodegaView:
     def __init__(self, root):
 
         self.root = root
-        self.root.title("Administración de Bodega")
+        self.root.title("Administración de Bodegas")
+        self.root.geometry("1000x700")
 
         self.model = BodegaModel()
 
-        # -------------------------
-        # FORMULARIO
-        # -------------------------
+        # --------------------------------
+        # FORMULARIO BODEGA
+        # --------------------------------
 
-        tk.Label(root, text="Titulo").pack()
+        tk.Label(root, text="Nombre Bodega").pack()
 
-        self.entry_titulo = tk.Entry(root)
-        self.entry_titulo.pack()
+        self.entry_nombre = tk.Entry(root)
+        self.entry_nombre.pack()
 
-        tk.Label(root, text="Tipo").pack()
+        tk.Label(root, text="Dirección").pack()
 
-        self.entry_tipo = tk.Entry(root)
-        self.entry_tipo.pack()
-
-        tk.Label(root, text="Descripcion").pack()
-
-        self.entry_descripcion = tk.Entry(root)
-        self.entry_descripcion.pack()
-
-        tk.Label(root, text="Stock").pack()
-
-        self.entry_stock = tk.Entry(root)
-        self.entry_stock.pack()
+        self.entry_direccion = tk.Entry(root)
+        self.entry_direccion.pack()
 
         btn_agregar = tk.Button(
             root,
-            text="Agregar Producto",
-            command=self.agregar_producto
+            text="Agregar Bodega",
+            command=self.agregar_bodega
         )
 
         btn_agregar.pack(pady=5)
 
-        # -------------------------
-        # ACTUALIZAR STOCK
-        # -------------------------
-
-        tk.Label(root, text="Cantidad para actualizar stock").pack()
-
-        self.entry_actualizar_stock = tk.Entry(root)
-        self.entry_actualizar_stock.pack()
-
-        btn_actualizar = tk.Button(
-            root,
-            text="Actualizar Stock",
-            command=self.actualizar_stock
-        )
-
-        btn_actualizar.pack(pady=5)
-
-        # -------------------------
-        # ELIMINAR
-        # -------------------------
+        # --------------------------------
+        # ELIMINAR BODEGA
+        # --------------------------------
 
         btn_eliminar = tk.Button(
             root,
-            text="Eliminar Producto",
-            command=self.eliminar_producto
+            text="Eliminar Bodega",
+            command=self.eliminar_bodega
         )
 
         btn_eliminar.pack(pady=5)
 
-        # -------------------------
-        # TABLA
-        # -------------------------
+        # --------------------------------
+        # TABLA BODEGAS
+        # --------------------------------
+
+        tk.Label(
+            root,
+            text="Listado de Bodegas"
+        ).pack(pady=5)
 
         self.tree = ttk.Treeview(
             root,
-            columns=("ID", "Titulo", "Tipo", "Stock"),
-            show="headings"
+            columns=("ID", "Nombre", "Direccion"),
+            show="headings",
+            height=5
         )
 
         self.tree.heading("ID", text="ID")
-        self.tree.heading("Titulo", text="Titulo")
-        self.tree.heading("Tipo", text="Tipo")
-        self.tree.heading("Stock", text="Stock")
+        self.tree.heading("Nombre", text="Nombre")
+        self.tree.heading("Direccion", text="Direccion")
 
-        self.tree.pack(fill="both", expand=True)
+        self.tree.column("ID", width=50)
+        self.tree.column("Nombre", width=200)
+        self.tree.column("Direccion", width=300)
 
-        self.cargar_productos()
+        self.tree.pack(fill="x", pady=10)
 
-    # -------------------------
-    # CARGAR PRODUCTOS
-    # -------------------------
+        # --------------------------------
+        # TRANSFERENCIA
+        # --------------------------------
 
-    def cargar_productos(self):
+        tk.Label(root, text="ID Producto").pack()
+
+        self.entry_producto = tk.Entry(root)
+        self.entry_producto.pack()
+
+        tk.Label(root, text="Cantidad").pack()
+
+        self.entry_cantidad = tk.Entry(root)
+        self.entry_cantidad.pack()
+
+        tk.Label(root, text="ID Bodega Origen").pack()
+
+        self.entry_origen = tk.Entry(root)
+        self.entry_origen.pack()
+
+        tk.Label(root, text="ID Bodega Destino").pack()
+
+        self.entry_destino = tk.Entry(root)
+        self.entry_destino.pack()
+
+        btn_transferir = tk.Button(
+            root,
+            text="Transferir Producto",
+            command=self.transferir_producto
+        )
+
+        btn_transferir.pack(pady=10)
+
+        # --------------------------------
+        # TABLA MOVIMIENTOS
+        # --------------------------------
+
+        tk.Label(
+            root,
+            text="Historial de Transferencias"
+        ).pack(pady=10)
+
+        # Frame para tabla + scrollbar
+
+        frame_movimientos = tk.Frame(root)
+        frame_movimientos.pack(fill="both", expand=True)
+
+        self.tree_movimientos = ttk.Treeview(
+            frame_movimientos,
+            columns=(
+                "ID",
+                "Producto",
+                "Cantidad",
+                "Origen",
+                "Destino",
+                "Fecha"
+            ),
+            show="headings",
+            height=12
+        )
+
+        self.tree_movimientos.heading("ID", text="ID")
+        self.tree_movimientos.heading("Producto", text="Producto")
+        self.tree_movimientos.heading("Cantidad", text="Cantidad")
+        self.tree_movimientos.heading("Origen", text="Origen")
+        self.tree_movimientos.heading("Destino", text="Destino")
+        self.tree_movimientos.heading("Fecha", text="Fecha")
+
+        self.tree_movimientos.column("ID", width=50)
+        self.tree_movimientos.column("Producto", width=150)
+        self.tree_movimientos.column("Cantidad", width=80)
+        self.tree_movimientos.column("Origen", width=150)
+        self.tree_movimientos.column("Destino", width=150)
+        self.tree_movimientos.column("Fecha", width=250)
+
+        # Scrollbar
+
+        scrollbar = tk.Scrollbar(frame_movimientos)
+
+        scrollbar.pack(
+            side="right",
+            fill="y"
+        )
+
+        self.tree_movimientos.configure(
+            yscrollcommand=scrollbar.set
+        )
+
+        scrollbar.configure(
+            command=self.tree_movimientos.yview
+        )
+
+        self.tree_movimientos.pack(
+            side="left",
+            fill="both",
+            expand=True
+        )
+
+        self.cargar_bodegas()
+        self.cargar_movimientos()
+
+    # --------------------------------
+    # CARGAR BODEGAS
+    # --------------------------------
+
+    def cargar_bodegas(self):
 
         self.tree.delete(*self.tree.get_children())
 
-        productos = self.model.obtener_productos()
+        bodegas = self.model.obtener_bodegas()
 
-        for producto in productos:
-            self.tree.insert("", tk.END, values=producto)
+        for bodega in bodegas:
 
-    # -------------------------
-    # AGREGAR PRODUCTO
-    # -------------------------
+            self.tree.insert(
+                "",
+                tk.END,
+                values=bodega
+            )
 
-    def agregar_producto(self):
+    # --------------------------------
+    # CARGAR MOVIMIENTOS
+    # --------------------------------
 
-        titulo = self.entry_titulo.get()
-        tipo = self.entry_tipo.get()
-        descripcion = self.entry_descripcion.get()
-        stock = self.entry_stock.get()
+    def cargar_movimientos(self):
 
-        self.model.agregar_producto(
-            titulo,
-            tipo,
-            descripcion,
-            stock
+        for item in self.tree_movimientos.get_children():
+
+            self.tree_movimientos.delete(item)
+
+        movimientos = self.model.obtener_movimientos()
+
+        for movimiento in movimientos:
+
+            self.tree_movimientos.insert(
+                "",
+                "end",
+                values=(
+                    movimiento[0],
+                    movimiento[1],
+                    movimiento[2],
+                    movimiento[3],
+                    movimiento[4],
+                    movimiento[5]
+                )
+            )
+
+    # --------------------------------
+    # AGREGAR BODEGA
+    # --------------------------------
+
+    def agregar_bodega(self):
+
+        nombre = self.entry_nombre.get()
+        direccion = self.entry_direccion.get()
+
+        self.model.agregar_bodega(
+            nombre,
+            direccion
         )
 
-        self.cargar_productos()
+        self.cargar_bodegas()
 
-        self.entry_titulo.delete(0, tk.END)
-        self.entry_tipo.delete(0, tk.END)
-        self.entry_descripcion.delete(0, tk.END)
-        self.entry_stock.delete(0, tk.END)
+        self.entry_nombre.delete(0, tk.END)
+        self.entry_direccion.delete(0, tk.END)
 
-    # -------------------------
-    # ELIMINAR PRODUCTO
-    # -------------------------
+    # --------------------------------
+    # ELIMINAR BODEGA
+    # --------------------------------
 
-    def eliminar_producto(self):
+    def eliminar_bodega(self):
 
         seleccionado = self.tree.selection()
 
         if not seleccionado:
+
             messagebox.showwarning(
                 "Atención",
-                "Selecciona un producto"
+                "Selecciona una bodega"
             )
+
             return
 
         item = self.tree.item(seleccionado)
 
-        id_producto = item["values"][0]
+        id_bodega = item["values"][0]
 
-        self.model.eliminar_producto(id_producto)
+        self.model.eliminar_bodega(id_bodega)
 
-        self.cargar_productos()
+        self.cargar_bodegas()
 
-    # -------------------------
-    # ACTUALIZAR STOCK
-    # -------------------------
+    # --------------------------------
+    # TRANSFERIR PRODUCTO
+    # --------------------------------
 
-    def actualizar_stock(self):
+    def transferir_producto(self):
 
-        seleccionado = self.tree.selection()
+        id_producto = self.entry_producto.get()
+        cantidad = self.entry_cantidad.get()
+        origen = self.entry_origen.get()
+        destino = self.entry_destino.get()
 
-        if not seleccionado:
-            messagebox.showwarning(
-                "Atención",
-                "Selecciona un producto"
-            )
-            return
-
-        cantidad = self.entry_actualizar_stock.get()
-
-        if cantidad == "":
-            messagebox.showwarning(
-                "Atención",
-                "Ingresa una cantidad"
-            )
-            return
-
-        item = self.tree.item(seleccionado)
-
-        id_producto = item["values"][0]
-
-        self.model.actualizar_stock(
-            id_producto,
-            int(cantidad)
+        self.model.transferir_producto(
+            int(id_producto),
+            int(cantidad),
+            int(origen),
+            int(destino)
         )
 
-        self.cargar_productos()
+        messagebox.showinfo(
+            "Éxito",
+            "Transferencia realizada"
+        )
 
-        self.entry_actualizar_stock.delete(0, tk.END)
+        self.cargar_movimientos()
+
+        self.entry_producto.delete(0, tk.END)
+        self.entry_cantidad.delete(0, tk.END)
+        self.entry_origen.delete(0, tk.END)
+        self.entry_destino.delete(0, tk.END)

@@ -1,6 +1,7 @@
+from logging import root
 import tkinter as tk
 from src.models.database import DatabaseConnection
-
+from src.views.bodega_view import BodegaView
 def main():
     print("Iniciando aplicacion...")
 
@@ -11,10 +12,11 @@ def main():
         conn.close()
         print("Conexión cerrada correctamente. Todo listo.")
 
-    root = tk.Tk()
-    root.title("Bodeguita")
-    root.geometry("800x600")
-    root.mainloop()
+root = tk.Tk()
+root.geometry("800x600")
 
+app = BodegaView(root)
+
+root.mainloop()
 if __name__ == "__main__":
     main()

@@ -13,7 +13,7 @@ def main():
         print("Conexión cerrada correctamente. Todo listo.")
 
 root = tk.Tk()
-root.geometry("800x600")
+root.geometry("800x700")
 
 app = BodegaView(root)
 

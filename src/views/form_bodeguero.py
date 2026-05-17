@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter.font import BOLD
 
-class MasterPanel:
+class bodegueroPanel:
     
                                       
     def __init__(self):        
@@ -20,4 +20,15 @@ class MasterPanel:
         title = tk.Label(frame_form_top, text="bienvenido bodeguero",font=('Times', 30), fg="#666a88",bg='#fcfcfc',pady=50)
         title.pack(expand=tk.YES,fill=tk.BOTH)
 
+
+        btn_cerrar = tk.Button(frame_form, text="Cerrar Sesion", command=self.cerrar_sesion)
+        btn_cerrar.pack(pady=10)
+        
+        
         self.ventana.mainloop()
+
+
+    def cerrar_sesion(self):
+        self.ventana.destroy()
+        from src.views.form_login import login
+        login()

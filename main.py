@@ -1,24 +1,7 @@
-from logging import root
-import tkinter as tk
-from src.models.database import DatabaseConnection
-from src.views.bodega_view import BodegaView
-from src.views.form_login import App
-App()
+from src.views.form_login import login
+
 def main():
-    print("Iniciando aplicacion...")
+    login()
 
-    db = DatabaseConnection()
-    conn = db.connect()
-    
-    if conn:
-        conn.close()
-        print("Conexión cerrada correctamente. Todo listo.")
-
-root = tk.Tk()
-root.geometry("800x700")
-
-app = BodegaView(root)
-
-root.mainloop()
 if __name__ == "__main__":
     main()

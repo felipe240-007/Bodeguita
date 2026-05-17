@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from src.models.bodega_model import BodegaModel
+from src.controllers.bodega_controller import BodegaController
 
 class BodegaView:
 
@@ -10,7 +10,7 @@ class BodegaView:
         self.root.title("Administración de Bodegas")
         self.root.geometry("1000x700")
 
-        self.model = BodegaModel()
+        self.controller = BodegaController()
 
         # --------------------------------
         # FORMULARIO BODEGA
@@ -180,7 +180,7 @@ class BodegaView:
 
         self.tree.delete(*self.tree.get_children())
 
-        bodegas = self.model.obtener_bodegas()
+        bodegas = self.controller.obtener_bodegas()
 
         for bodega in bodegas:
 
@@ -200,7 +200,7 @@ class BodegaView:
 
             self.tree_movimientos.delete(item)
 
-        movimientos = self.model.obtener_movimientos()
+        movimientos = self.controller.obtener_movimientos()
 
         for movimiento in movimientos:
 
@@ -226,7 +226,7 @@ class BodegaView:
         nombre = self.entry_nombre.get()
         direccion = self.entry_direccion.get()
 
-        self.model.agregar_bodega(
+        self.controller.agregar_bodega(
             nombre,
             direccion
         )
@@ -257,7 +257,7 @@ class BodegaView:
 
         id_bodega = item["values"][0]
 
-        self.model.eliminar_bodega(id_bodega)
+        self.controller.eliminar_bodega(id_bodega)
 
         self.cargar_bodegas()
 
@@ -272,7 +272,7 @@ class BodegaView:
         origen = self.entry_origen.get()
         destino = self.entry_destino.get()
 
-        self.model.transferir_producto(
+        self.controller.transferir_producto(
             int(id_producto),
             int(cantidad),
             int(origen),

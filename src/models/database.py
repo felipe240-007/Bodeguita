@@ -23,8 +23,8 @@ class DatabaseConnection:
                 port=self.port
             )
             if connection.is_connected():
-                print("✅ Conectado exitosamente a la base de datos Aiven")
+                print("[OK] Conectado exitosamente a la base de datos Aiven")
                 return connection
         except Error as e:
-            print(f"❌ Error al conectar con Aiven MySQL: {e}")
+            print(f"[ERROR] Error al conectar con Aiven MySQL: {e}")
             return None

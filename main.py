@@ -2,6 +2,8 @@ from logging import root
 import tkinter as tk
 from src.models.database import DatabaseConnection
 from src.views.bodega_view import BodegaView
+from src.views.form_login import App
+App()
 def main():
     print("Iniciando aplicacion...")
 
